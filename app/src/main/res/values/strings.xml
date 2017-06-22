@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ScanBarcodeQrDemoNuts</string>
+
+    <string name="ScanResult">Scan result</string>
+    <string name="Scannedbyname">Scanned by name</string>
+    <string name="Filldate">Date</string>
+    <string name="Notes">Notes</string>
+
+    <string name="Save">Save</string>
+</resources>

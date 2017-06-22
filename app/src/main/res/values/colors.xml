@@ -1,0 +1,14 @@
+ <resources>
+     <color name="ColorPrimary">#FF5722</color>
+     <color name="ColorPrimaryDark">#E64A19</color>
+     <color name="ColorShade">#d7dcdc</color>
+     <color name="textColorPrimary">#f1edec</color>
+
+     <color name="colorPrimary">#3F51B5</color>
+     <color name="colorPrimaryDark">#303F9F</color>
+     <color name="colorAccent">#FF4081</color>
+     <color name="year">#999999</color>
+     <color name="title">#222222</color>
+    </resources>
+
+
