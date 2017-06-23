@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.SQLException;
 
 import com.exampledemo.qrcode.scanbarcodeqrdemonuts.com.entity.AdapterClass;
+import com.exampledemo.qrcode.scanbarcodeqrdemonuts.com.entity.Shop;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,97 +16,85 @@ import java.util.List;
 /**
  * Created by TONMOYPC on 6/22/2017.
  */
-public class DatabaseHandler extends SQLiteOpenHelper {
+public class DatabaseHandler{
 
-    // All Static variables
-    // Database Version
-    private static final int DATABASE_VERSION = 1;
+    //define static variable
+    public static int dbversion =3;
+    public static String dbname = "ScanDB";
+    public static String dbTable = "scan";
 
-    // Database Name
-    private static final String DATABASE_NAME = "scannerdb";
+    private static class DatabaseHelper extends SQLiteOpenHelper {
+        public DatabaseHelper(Context context) {
+            super(context,dbname,null, dbversion);
+        }
 
-    // Contacts table name
-    private static final String TABLE_SCAN = "scan";
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE "+dbTable+" (id INTEGER PRIMARY KEY autoincrement,scanname, scanresult, date, note)");
+        }
 
-    // Contacts Table Columns names
-    private static final String KEY_ID = "id";
-    private static final String KEY_NAME = "scanname";
-    private static final String KEY_RESULT = "scanresult";
-    private static final String KEY_DATE = "date";
-    private static final String KEY_NOTE = "note";
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS "+dbTable);
+            onCreate(db);
+        }
+    }
+
+    //establsh connection with SQLiteDataBase
+    private final Context c;
+    private DatabaseHelper dbHelper;
+    private SQLiteDatabase sqlDb;
 
     public DatabaseHandler(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.c = context;
+    }
+    public DatabaseHandler open() throws SQLException {
+        dbHelper = new DatabaseHelper(c);
+        sqlDb = dbHelper.getWritableDatabase();
+        return this;
     }
 
-    // Creating Tables
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_SCAN + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT,"
-                + KEY_RESULT + " TEXT," + KEY_DATE + " TEXT,"+KEY_NOTE+"TEXT"+")";
-        db.execSQL(CREATE_CONTACTS_TABLE);
+    //insert data
+    public void insert(String text2,String text3,String text4,String text5) {
+        if(!isExist(text3)) {
+            sqlDb.execSQL("INSERT INTO scan (scanname,scanresult,date,note) VALUES('"+text2+"','"+text3+"','"+text4+"','"+text5+"')");
+        }
+    }
+    //check entry already in database or not
+    public boolean isExist(String result){
+        String query = "SELECT scanresult FROM scan WHERE scanresult='"+result+"' LIMIT 1";
+        Cursor row = sqlDb.rawQuery(query, null);
+        return row.moveToFirst();
     }
 
-    // Upgrading database
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCAN);
-
-        // Create tables again
-        onCreate(db);
+    //edit data
+    public void update(int id, String text2, String text3, String text4, String text5) {
+        sqlDb.execSQL("UPDATE "+dbTable+" SET name='"+text2+"', number='"+text3+"', email='"+text4+"', address='"+text5+"',   WHERE _id=" + id);
     }
 
-    public void addData(AdapterClass adapter) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, adapter.getScannedbyname());
-        values.put(KEY_RESULT, adapter.getScannedresult());
-        values.put(KEY_DATE, adapter.getDate());
-        values.put(KEY_NOTE, adapter.getNote());
-
-        // Inserting Row
-        db.insert(TABLE_SCAN, null, values);
-        db.close(); // Closing database connection
+    //delete data
+    public void delete(int id) {
+        sqlDb.execSQL("DELETE FROM "+dbTable+" WHERE _id="+id);
     }
 
-    // Getting single contact
-     public AdapterClass getData(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_SCAN, new String[] { KEY_ID,
-                        KEY_NAME, KEY_RESULT,KEY_DATE,KEY_NOTE }, KEY_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        AdapterClass adapterclass = new AdapterClass(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2),cursor.getString(3),cursor.getString(4));
-        // return contact
-        return adapterclass;
-    }
-
-    public List<AdapterClass> getAllContacts() {
+    //fetch data
+    public List<AdapterClass> getAllValues() {
         List<AdapterClass> contactList = new ArrayList<AdapterClass>();
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_SCAN;
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        String selectQuery = "SELECT  * FROM " + dbTable;
+        Cursor cursor = sqlDb.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                AdapterClass adapterclass = new AdapterClass();
-                adapterclass.setId(Integer.parseInt(cursor.getString(0)));
-                adapterclass.setScannedbyname(cursor.getString(1));
-                adapterclass.setScannedresult(cursor.getString(2));
-                adapterclass.setDate(cursor.getString(2));
-                adapterclass.setNote(cursor.getString(2));
+                AdapterClass contact = new AdapterClass();
+                contact.setId(Integer.parseInt(cursor.getString(0)));
+                contact.setScannedbyname(cursor.getString(1));
+                contact.setScannedresult(cursor.getString(2));
+                contact.setDate(cursor.getString(3));
+                contact.setNote(cursor.getString(4));
                 // Adding contact to list
-                contactList.add(adapterclass);
+                contactList.add(contact);
             } while (cursor.moveToNext());
         }
 
@@ -112,12 +102,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return contactList;
     }
 
-    public boolean isExist(String result) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_SCAN + " WHERE scanresult = '" + result + "'", null);
-        boolean exist = (cursor.getCount() > 0);
-        cursor.close();
-        db.close();
-        return exist;
+    //fetch data by filter
+    public Cursor fetchdatabyfilter(String inputText,String filtercolumn) throws SQLException {
+        Cursor row = null;
+        String query = "SELECT * FROM "+dbTable;
+        if (inputText == null  ||  inputText.length () == 0)  {
+            row = sqlDb.rawQuery(query, null);
+        }else {
+            query = "SELECT * FROM "+dbTable+" WHERE "+filtercolumn+" like '%"+inputText+"%'";
+            row = sqlDb.rawQuery(query, null);
+        }
+        if (row != null) {
+            row.moveToFirst();
+        }
+        return row;
     }
 }
+

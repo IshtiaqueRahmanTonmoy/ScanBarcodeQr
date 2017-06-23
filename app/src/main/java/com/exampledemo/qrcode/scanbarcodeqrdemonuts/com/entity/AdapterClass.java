@@ -15,6 +15,14 @@ public class AdapterClass {
 
     }
 
+    public void setAll(int id, String scannedbyname, String scannedresult,String date,String note) {
+        this.id = id;
+        this.scannedbyname = scannedbyname;
+        this.scannedresult = scannedresult;
+        this.date = date;
+        this.note = note;
+    }
+
     public int getId() {
         return id;
     }
