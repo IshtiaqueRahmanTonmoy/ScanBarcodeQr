@@ -81,7 +81,7 @@ public class FormDataActivity extends AppCompatActivity {
                 note=edtNote.getText().toString();
 
                 if(db.isExist(result)){
-                    Toast.makeText(getApplicationContext(),"already exist", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"data exist already ", Toast.LENGTH_SHORT).show();
                 }else{
 
                     db.insert(name,result,date,note);

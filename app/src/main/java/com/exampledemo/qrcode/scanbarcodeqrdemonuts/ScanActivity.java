@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.Normalizer;
+
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 public class ScanActivity extends AppCompatActivity implements ZBarScannerView.ResultHandler {
@@ -51,6 +53,8 @@ public class ScanActivity extends AppCompatActivity implements ZBarScannerView.R
         editor.putString("message", result.getContents().toString());
         editor.commit();
 
+        Intent intent = new Intent(ScanActivity.this, FormDataActivity.class);
+        startActivity(intent);
         onBackPressed();
 
         // If you would like to resume scanning, call this method below:
