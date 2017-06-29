@@ -19,9 +19,9 @@ import java.util.List;
 public class DatabaseHandler{
 
     //define static variable
-    public static int dbversion =3;
+    public static int dbversion =1;
     public static String dbname = "ScanDB";
-    public static String dbTable = "scan";
+    public static String dbTable = "scantable";
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         public DatabaseHelper(Context context) {
@@ -57,24 +57,14 @@ public class DatabaseHandler{
     //insert data
     public void insert(String text2,String text3,String text4,String text5) {
         if(!isExist(text3)) {
-            sqlDb.execSQL("INSERT INTO scan (scanname,scanresult,date,note) VALUES('"+text2+"','"+text3+"','"+text4+"','"+text5+"')");
+            sqlDb.execSQL("INSERT INTO scantable(scanname,scanresult,date,note) VALUES('"+text2+"','"+text3+"','"+text4+"','"+text5+"')");
         }
     }
     //check entry already in database or not
     public boolean isExist(String result){
-        String query = "SELECT scanresult FROM scan WHERE scanresult='"+result+"' LIMIT 1";
+        String query = "SELECT scanresult FROM scantable WHERE scanresult='"+result+"' LIMIT 1";
         Cursor row = sqlDb.rawQuery(query, null);
         return row.moveToFirst();
-    }
-
-    //edit data
-    public void update(int id, String text2, String text3, String text4, String text5) {
-        sqlDb.execSQL("UPDATE "+dbTable+" SET name='"+text2+"', number='"+text3+"', email='"+text4+"', address='"+text5+"',   WHERE _id=" + id);
-    }
-
-    //delete data
-    public void delete(int id) {
-        sqlDb.execSQL("DELETE FROM "+dbTable+" WHERE _id="+id);
     }
 
     //fetch data
