@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScanBarcodeQrDemoNuts</string>
+    <string name="app_name">ScanBarcodeQr</string>
 
     <string name="ScanResult">Scan result</string>
     <string name="Scannedbyname">Scanned by </string>
